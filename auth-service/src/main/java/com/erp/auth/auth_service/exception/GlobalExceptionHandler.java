@@ -40,12 +40,31 @@ public class GlobalExceptionHandler {
         response.put("message",e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+    @ExceptionHandler(UserAlreadyExist.class)
+    public ResponseEntity<Map<String,String>>handleUserAlreadyExist(UserAlreadyExist e)
+    {
+        Map<String,String> response=new LinkedHashMap<>();
+        response.put("success","false");
+        response.put("message",e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
+    @ExceptionHandler(GenericException.class)
+    public ResponseEntity<Map<String,String>>handleGeneric(GenericException e)
+    {
+        Map<String,String>response=new LinkedHashMap<>();
+        response.put("success","false");
+        response.put("message",e.getMessage());
+        return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String,String>>handleGeneric(Exception ex) {
+    public ResponseEntity<Map<String,String>>handleGlobal(Exception ex) {
         Map<String,String> response=new LinkedHashMap<>();
         response.put("success","false");
         response.put("message","Internal Server Error");
+        System.out.println(ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);

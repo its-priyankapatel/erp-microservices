@@ -2,8 +2,6 @@ package com.erp.auth.auth_service.service;
 
 import com.erp.auth.auth_service.dto.BulkResponse;
 import com.erp.auth.auth_service.entity.AuthUser;
-import com.erp.auth.auth_service.entity.Role;
-import com.erp.auth.auth_service.entity.Status;
 import com.erp.auth.auth_service.repository.AuthUserRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -42,15 +40,16 @@ public class BulkUserCreateImpl implements BulkUserCreate{
         for (BulkUserCreateImpl.CsvUserRow row : rows) {
 
             try {
-                // 1️⃣ Validate role
-                Role role;
-                try {
-                    role = Role.valueOf(row.role.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    errors.add("Row " + row.rowNumber + ": invalid role");
-                    SKIPPED++;
-                    continue;
-                }
+                String role;
+
+                    role = row.role.toUpperCase();
+                    if(!role.equals("STUDENT") || !role.equals("FACULTY")|| !role.equals("ADMIN"))
+                    {
+                        errors.add("Row " + row.rowNumber + ": invalid role");
+                        SKIPPED++;
+                        continue;
+                    }
+
 
                 // 2️⃣ Check duplicate username
                 if (authUserRepository.findByUsername(row.username).isPresent()) {
@@ -68,8 +67,7 @@ public class BulkUserCreateImpl implements BulkUserCreate{
                 user.setUsername(row.username);
                 user.setPasswordHash(hashedPassword);
                 user.setRole(role);
-                user.setStatus(Status.ACTIVE);
-                user.setCreatedAt(Instant.now());
+                user.setStatus("ACTIVE");
 
                 // 5️⃣ Save user
                 authUserRepository.save(user);
